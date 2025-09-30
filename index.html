@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tier-2 City Bus Tracker - Solving Real Transport Challenges</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Authentication Overlay -->
+    <div id="auth-overlay" class="auth-overlay">
+        <div class="auth-container">
+            <div class="auth-header">
+                <h1>🚌 Tier-2 City Bus Tracker</h1>
+                <p>Solving the 60% Delay Problem for Small Cities & Tier-2 Towns</p>
+                <div class="problem-highlight">
+                    <div class="problem-stat-compact">
+                        <span class="stat-number">60%</span>
+                        <span class="stat-text">of commuters face delays</span>
+                    </div>
+                    <div class="solution-arrow">→</div>
+                    <div class="solution-stat-compact">
+                        <span class="stat-number">67%</span>
+                        <span class="stat-text">delay reduction achieved</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Login Form -->
+            <div id="login-form" class="auth-form">
+                <h2>Login to Your Dashboard</h2>
+                <form id="login-form-element">
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" id="login-email" class="form-control" placeholder="Enter your email" required autocomplete="email">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" id="login-password" class="form-control" placeholder="Enter your password" required autocomplete="current-password">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">User Role</label>
+                        <select id="login-role" class="form-control" required>
+                            <option value="">Select your role</option>
+                            <option value="commuter">Commuter - Track buses & plan journeys</option>
+                            <option value="driver">Bus Driver - Share location & update status</option>
+                            <option value="authority">Transport Authority - Fleet management</option>
+                            <option value="admin">Municipal Admin - City-wide analytics</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-checkbox">
+                            <input type="checkbox" id="remember-me">
+                            <span class="checkbox-label">Remember me for 30 days</span>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn--primary btn--full-width">Login to Dashboard</button>
+                </form>
+                <div class="auth-links">
+                    <a href="#" id="forgot-password-link">Forgot Password?</a>
+                    <span>|</span>
+                    <a href="#" id="show-register-link">Create New Account</a>
+                    <span>|</span>
+                    <a href="#" id="guest-mode-link">Continue as Guest</a>
+                </div>
+
+                <!-- Sample Credentials -->
+                <div class="sample-credentials">
+                    <h4>Demo Credentials (Click to Auto-fill)</h4>
+                    <div class="credential-grid">
+                        <div class="credential-card" data-email="priya.sharma@email.com" data-password="commuter123" data-role="commuter">
+                            <div class="credential-role">👤 Commuter</div>
+                            <div class="credential-name">Priya Sharma</div>
+                            <div class="credential-desc">Regular public transport user</div>
+                        </div>
+                        <div class="credential-card" data-email="ravi.driver@astc.gov.in" data-password="driver123" data-role="driver">
+                            <div class="credential-role">🚌 Driver</div>
+                            <div class="credential-name">Ravi Kalita</div>
+                            <div class="credential-desc">Bus operator with GPS tracking</div>
+                        </div>
+                        <div class="credential-card" data-email="anjali.bora@astc.gov.in" data-password="authority123" data-role="authority">
+                            <div class="credential-role">🏢 Authority</div>
+                            <div class="credential-name">Dr. Anjali Bora</div>
+                            <div class="credential-desc">ASTC operations manager</div>
+                        </div>
+                        <div class="credential-card" data-email="bikash.admin@gmda.gov.in" data-password="admin123" data-role="admin">
+                            <div class="credential-role">🏛️ Municipal Admin</div>
+                            <div class="credential-name">Shri Bikash Sharma</div>
+                            <div class="credential-desc">City transport planning official</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Registration Form -->
+            <div id="register-form" class="auth-form hidden">
+                <h2>Create Your Account</h2>
+                <form id="register-form-element">
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" id="register-name" class="form-control" placeholder="Enter your full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" id="register-email" class="form-control" placeholder="Enter your email" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Phone Number</label>
+                        <input type="tel" id="register-phone" class="form-control" placeholder="Enter your phone number" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" id="register-password" class="form-control" placeholder="Create a password" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Confirm Password</label>
+                        <input type="password" id="register-confirm-password" class="form-control" placeholder="Confirm your password" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">User Role</label>
+                        <select id="register-role" class="form-control" required>
+                            <option value="">Select your role</option>
+                            <option value="commuter">Commuter - I use public transport regularly</option>
+                            <option value="driver">Bus Driver - I operate buses and want to share location</option>
+                            <option value="authority">Transport Authority - I manage fleet operations</option>
+                            <option value="admin">Municipal Admin - I oversee city transport policy</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">City/Town</label>
+                        <select id="register-city" class="form-control" required>
+                            <option value="">Select your city</option>
+                            <option value="guwahati">Guwahati, Assam</option>
+                            <option value="shillong">Shillong, Meghalaya</option>
+                            <option value="dibrugarh">Dibrugarh, Assam</option>
+                            <option value="silchar">Silchar, Assam</option>
+                            <option value="other">Other Tier-2 City</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-checkbox">
+                            <input type="checkbox" id="terms-agreement" required>
+                            <span class="checkbox-label">I agree to the Terms of Service and Privacy Policy</span>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn--primary btn--full-width">Create Account</button>
+                </form>
+                <div class="auth-links">
+                    <a href="#" id="show-login-link">Already have an account? Login</a>
+                </div>
+            </div>
+
+            <!-- Password Reset Form -->
+            <div id="password-reset-form" class="auth-form hidden">
+                <h2>Reset Your Password</h2>
+                <p>Enter your email address and we'll send you instructions to reset your password.</p>
+                <form id="password-reset-form-element">
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" id="reset-email" class="form-control" placeholder="Enter your email" required>
+                    </div>
+                    <button type="submit" class="btn btn--primary btn--full-width">Send Reset Instructions</button>
+                </form>
+                <div class="auth-links">
+                    <a href="#" id="back-to-login-link">Back to Login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="main-app" class="main-app hidden">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="container">
+                <div class="nav-content">
+                    <div class="nav-brand">
+                        <h1>🚌 Tier-2 City Bus Tracker</h1>
+                        <span class="nav-tagline" id="user-greeting">Welcome back!</span>
+                    </div>
+                    <div class="nav-controls">
+                        <div class="user-profile">
+                            <div class="user-avatar" id="user-avatar">👤</div>
+                            <div class="user-info">
+                                <div class="user-name" id="user-name">Guest User</div>
+                                <div class="user-role" id="user-role-display">Guest Mode</div>
+                            </div>
+                        </div>
+                        <button id="lite-mode-btn" class="btn btn--outline btn--sm">
+                            <span id="lite-mode-icon">📶</span> Lite Mode
+                        </button>
+                        <button id="logout-btn" class="btn btn--secondary btn--sm">Logout</button>
+                        <div class="system-status">
+                            <span class="status status--success">Live System</span>
+                            <span class="bandwidth-indicator" id="bandwidth-usage">8KB/min</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Problem Statement Banner -->
+        <div class="problem-banner">
+            <div class="container">
+                <div class="problem-content">
+                    <div class="problem-stat">
+                        <span class="stat-large">60%</span>
+                        <span class="stat-desc">of tier-2 city commuters face delays</span>
+                    </div>
+                    <div class="solution-stat">
+                        <span class="stat-large">67%</span>
+                        <span class="stat-desc">delay reduction achieved</span>
+                    </div>
+                    <div class="impact-stat">
+                        <span class="stat-large">₹2.4 Cr</span>
+                        <span class="stat-desc">annual time savings</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Role-based Interface Tabs -->
+        <div class="interface-tabs">
+            <div class="container">
+                <div class="tab-buttons">
+                    <button id="commuter-tab" class="tab-button active">
+                        <span class="tab-icon">👤</span>
+                        <span class="tab-label">Commuter View</span>
+                    </button>
+                    <button id="driver-tab" class="tab-button">
+                        <span class="tab-icon">🚌</span>
+                        <span class="tab-label">Driver Interface</span>
+                    </button>
+                    <button id="authority-tab" class="tab-button">
+                        <span class="tab-icon">🏢</span>
+                        <span class="tab-label">Transport Authority</span>
+                    </button>
+                    <button id="admin-tab" class="tab-button">
+                        <span class="tab-icon">🏛️</span>
+                        <span class="tab-label">Municipal Admin</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Commuter Interface -->
+        <div id="commuter-interface" class="interface-container">
+            <div class="main-layout">
+                <!-- Sidebar -->
+                <aside class="sidebar">
+                    <div class="sidebar-header">
+                        <h3>Guwahati Real-Time Tracking</h3>
+                        <div class="city-info">
+                            <span class="city-label">Tier-2 City Example</span>
+                            <span class="city-population">1.2M Population</span>
+                        </div>
+                        <div class="search-controls">
+                            <input type="text" id="route-search" class="form-control" placeholder="Search routes or stops...">
+                            <select id="route-filter" class="form-control">
+                                <option value="">All Routes</option>
+                                <option value="ROUTE001">Khanapara-Paltan Express</option>
+                                <option value="ROUTE002">Temple Heritage Circuit</option>
+                                <option value="AIRPORT">LGB Airport Express</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="sidebar-content">
+                        <!-- Journey Planner -->
+                        <div class="journey-planner">
+                            <h4>Journey Planner</h4>
+                            <div class="journey-form">
+                                <input type="text" id="journey-from" class="form-control" placeholder="From (Your Location)">
+                                <input type="text" id="journey-to" class="form-control" placeholder="To (Destination)">
+                                <button id="plan-journey-btn" class="btn btn--primary btn--sm">Plan Journey</button>
+                            </div>
+                            <div id="journey-results" class="journey-results hidden">
+                                <!-- Journey results will be populated -->
+                            </div>
+                        </div>
+
+                        <!-- Favorite Routes -->
+                        <div class="favorites-section">
+                            <h4>Your Favorite Routes</h4>
+                            <div id="favorite-routes" class="favorites-list">
+                                <!-- Favorite routes will be populated -->
+                            </div>
+                            <button id="manage-favorites-btn" class="btn btn--outline btn--sm">Manage Favorites</button>
+                        </div>
+
+                        <!-- Real-time Notifications -->
+                        <div class="notifications-section">
+                            <h4>Live Updates</h4>
+                            <div id="notifications-list" class="notifications-list">
+                                <!-- Notifications will be populated by JavaScript -->
+                            </div>
+                        </div>
+
+                        <!-- Active Buses -->
+                        <div class="buses-section">
+                            <h4>Active Buses</h4>
+                            <div id="buses-list" class="buses-list">
+                                <!-- Bus cards will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Map Container -->
+                <main class="map-container">
+                    <div class="map-header">
+                        <div class="map-controls">
+                            <button id="refresh-btn" class="btn btn--outline btn--sm">🔄 Refresh</button>
+                            <button id="center-map-btn" class="btn btn--outline btn--sm">📍 Center Guwahati</button>
+                            <button id="traffic-layer-btn" class="btn btn--outline btn--sm">🚦 Traffic Layer</button>
+                            <div class="connection-info">
+                                <span class="connection-quality" id="network-quality">3G Ready</span>
+                                <div class="live-indicator">
+                                    <div class="pulse-dot"></div>
+                                    <span>3s Updates</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="map" class="map-view"></div>
+                </main>
+            </div>
+        </div>
+
+        <!-- Driver Interface -->
+        <div id="driver-interface" class="interface-container hidden">
+            <div class="driver-layout">
+                <div class="driver-container">
+                    <div class="driver-header">
+                        <h2>Bus Driver Dashboard</h2>
+                        <p>Share your location to solve the 60% delay problem</p>
+                    </div>
+
+                    <div class="driver-grid">
+                        <!-- GPS Tracking Panel -->
+                        <div class="driver-card">
+                            <h3>GPS Location Sharing</h3>
+                            <div class="gps-controls">
+                                <select id="driver-bus-select" class="form-control">
+                                    <option value="">Select Your Bus</option>
+                                    <option value="AS-01-GAU">AS-01-GAU - Khanapara Express</option>
+                                    <option value="AS-02-GAU">AS-02-GAU - Temple Circuit</option>
+                                    <option value="AS-03-AIR">AS-03-AIR - Airport Express</option>
+                                </select>
+                                <select id="driver-route-select" class="form-control">
+                                    <option value="">Select Route</option>
+                                    <option value="ROUTE001">Khanapara-Paltan Express</option>
+                                    <option value="ROUTE002">Temple Heritage Circuit</option>
+                                    <option value="AIRPORT">LGB Airport Express</option>
+                                </select>
+                                <div class="tracking-controls">
+                                    <button id="start-shift-btn" class="btn btn--primary">Start Shift & GPS</button>
+                                    <button id="end-shift-btn" class="btn btn--secondary hidden">End Shift</button>
+                                </div>
+                            </div>
+                            <div id="gps-status" class="gps-status">
+                                <span class="status status--info">GPS Inactive</span>
+                            </div>
+                            <div id="gps-coordinates" class="gps-display hidden">
+                                <!-- GPS coordinates will be displayed -->
+                            </div>
+                        </div>
+
+                        <!-- Bus Status Updates -->
+                        <div class="driver-card">
+                            <h3>Bus Status & Capacity</h3>
+                            <div class="status-controls">
+                                <div class="form-group">
+                                    <label class="form-label">Current Status</label>
+                                    <select id="bus-status-select" class="form-control">
+                                        <option value="on-time">On Time</option>
+                                        <option value="slightly-delayed">Slightly Delayed (2-5 min)</option>
+                                        <option value="delayed">Delayed (5+ min)</option>
+                                        <option value="breakdown">Breakdown/Emergency</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Passenger Capacity</label>
+                                    <input type="range" id="capacity-slider" class="capacity-slider" min="0" max="50" value="25">
+                                    <div class="capacity-display">
+                                        <span id="capacity-count">25</span>/<span id="capacity-max">50</span> passengers
+                                    </div>
+                                </div>
+                                <button id="update-status-btn" class="btn btn--primary">Update Status</button>
+                            </div>
+                        </div>
+
+                        <!-- Route Information -->
+                        <div class="driver-card">
+                            <h3>Today's Route Info</h3>
+                            <div id="route-info" class="route-info">
+                                <div class="route-stat">
+                                    <span class="route-label">Trips Completed</span>
+                                    <span class="route-value" id="trips-completed">0</span>
+                                </div>
+                                <div class="route-stat">
+                                    <span class="route-label">Passengers Served</span>
+                                    <span class="route-value" id="passengers-served">0</span>
+                                </div>
+                                <div class="route-stat">
+                                    <span class="route-label">Delay Reduction</span>
+                                    <span class="route-value" id="delay-reduction">--</span>
+                                </div>
+                            </div>
+                            <div class="next-stops">
+                                <h4>Upcoming Stops</h4>
+                                <div id="upcoming-stops" class="upcoming-stops-list">
+                                    <!-- Upcoming stops will be populated -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Emergency & Communication -->
+                        <div class="driver-card">
+                            <h3>Communication & Alerts</h3>
+                            <div class="communication-controls">
+                                <button id="emergency-btn" class="btn btn--outline emergency-btn">🚨 Emergency Alert</button>
+                                <button id="breakdown-btn" class="btn btn--outline">🔧 Report Breakdown</button>
+                                <button id="traffic-alert-btn" class="btn btn--outline">🚦 Traffic Alert</button>
+                            </div>
+                            <div class="driver-messages">
+                                <h4>Messages from Control Room</h4>
+                                <div id="driver-messages" class="messages-list">
+                                    <div class="message-item">
+                                        <span class="message-time">10:30 AM</span>
+                                        <span class="message-text">Route performing well - keep it up!</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transport Authority Interface -->
+        <div id="authority-interface" class="interface-container hidden">
+            <div class="authority-layout">
+                <div class="authority-container">
+                    <div class="authority-header">
+                        <h2>Transport Authority Dashboard</h2>
+                        <p>Real-time fleet management solving tier-2 city transport challenges</p>
+                    </div>
+
+                    <div class="authority-grid">
+                        <!-- Fleet Overview -->
+                        <div class="authority-card">
+                            <h3>Fleet Status Overview</h3>
+                            <div class="fleet-metrics">
+                                <div class="fleet-metric">
+                                    <span class="metric-value" id="active-buses">3</span>
+                                    <span class="metric-label">Active Buses</span>
+                                </div>
+                                <div class="fleet-metric">
+                                    <span class="metric-value" id="on-time-percentage">78%</span>
+                                    <span class="metric-label">On-Time Performance</span>
+                                </div>
+                                <div class="fleet-metric">
+                                    <span class="metric-value" id="daily-passengers">2,400</span>
+                                    <span class="metric-label">Daily Passengers</span>
+                                </div>
+                                <div class="fleet-metric">
+                                    <span class="metric-value" id="avg-delay-reduction">67%</span>
+                                    <span class="metric-label">Avg Delay Reduction</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Real-time Bus Monitoring -->
+                        <div class="authority-card">
+                            <h3>Live Bus Monitoring</h3>
+                            <div id="authority-bus-list" class="authority-bus-list">
+                                <!-- Authority bus cards populated by JavaScript -->
+                            </div>
+                        </div>
+
+                        <!-- Route Performance Analytics -->
+                        <div class="authority-card">
+                            <h3>Route Performance</h3>
+                            <div class="route-analytics">
+                                <div class="analytics-tabs">
+                                    <button class="analytics-tab active" data-tab="performance">Performance</button>
+                                    <button class="analytics-tab" data-tab="utilization">Utilization</button>
+                                    <button class="analytics-tab" data-tab="delays">Delays</button>
+                                </div>
+                                <div id="analytics-content" class="analytics-content">
+                                    <!-- Analytics content will be populated -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Driver Management -->
+                        <div class="authority-card">
+                            <h3>Driver Management</h3>
+                            <div class="driver-management">
+                                <div class="driver-list">
+                                    <div class="driver-item">
+                                        <div class="driver-info">
+                                            <span class="driver-name">Ravi Kalita</span>
+                                            <span class="driver-bus">AS-01-GAU</span>
+                                        </div>
+                                        <span class="status status--success">Active</span>
+                                    </div>
+                                    <div class="driver-item">
+                                        <div class="driver-info">
+                                            <span class="driver-name">Suresh Das</span>
+                                            <span class="driver-bus">AS-02-GAU</span>
+                                        </div>
+                                        <span class="status status--warning">Break</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Municipal Admin Interface -->
+        <div id="admin-interface" class="interface-container hidden">
+            <div class="admin-layout">
+                <div class="admin-container">
+                    <div class="admin-header">
+                        <h2>Municipal Admin Dashboard</h2>
+                        <p>City-wide transport analytics and policy insights</p>
+                    </div>
+
+                    <div class="admin-grid">
+                        <!-- City-wide Metrics -->
+                        <div class="admin-card">
+                            <h3>City Transport Overview</h3>
+                            <div class="city-metrics">
+                                <div class="city-metric">
+                                    <span class="metric-icon">🚌</span>
+                                    <div class="metric-content">
+                                        <span class="metric-value">15%</span>
+                                        <span class="metric-label">Public Transport Usage Increase</span>
+                                    </div>
+                                </div>
+                                <div class="city-metric">
+                                    <span class="metric-icon">🌱</span>
+                                    <div class="metric-content">
+                                        <span class="metric-value">12%</span>
+                                        <span class="metric-label">CO2 Emission Reduction</span>
+                                    </div>
+                                </div>
+                                <div class="city-metric">
+                                    <span class="metric-icon">⏰</span>
+                                    <div class="metric-content">
+                                        <span class="metric-value">₹2.4 Cr</span>
+                                        <span class="metric-label">Annual Time Savings</span>
+                                    </div>
+                                </div>
+                                <div class="city-metric">
+                                    <span class="metric-icon">😊</span>
+                                    <div class="metric-content">
+                                        <span class="metric-value">74%</span>
+                                        <span class="metric-label">Citizen Satisfaction</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Problem Statement Impact -->
+                        <div class="admin-card">
+                            <h3>Addressing the 60% Delay Problem</h3>
+                            <div class="problem-impact">
+                                <div class="impact-before-after">
+                                    <div class="impact-before">
+                                        <h4>Before Implementation</h4>
+                                        <ul>
+                                            <li>60% of commuters faced delays</li>
+                                            <li>Average wait time: 18-22 minutes</li>
+                                            <li>32% public transport usage</li>
+                                            <li>High private vehicle dependency</li>
+                                        </ul>
+                                    </div>
+                                    <div class="impact-after">
+                                        <h4>After Implementation</h4>
+                                        <ul>
+                                            <li>67% reduction in delays achieved</li>
+                                            <li>Average wait time: 6-9 minutes</li>
+                                            <li>47% public transport usage (+15%)</li>
+                                            <li>15% reduction in traffic congestion</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="scaling-potential">
+                                    <h4>Scaling Potential</h4>
+                                    <div class="scaling-stats">
+                                        <div class="scaling-stat">
+                                            <span class="scaling-number">300+</span>
+                                            <span class="scaling-label">Applicable Tier-2 Cities</span>
+                                        </div>
+                                        <div class="scaling-stat">
+                                            <span class="scaling-number">₹8-15L</span>
+                                            <span class="scaling-label">Implementation Cost per City</span>
+                                        </div>
+                                        <div class="scaling-stat">
+                                            <span class="scaling-number">2-4 weeks</span>
+                                            <span class="scaling-label">Deployment Timeline</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Budget & Cost Analysis -->
+                        <div class="admin-card">
+                            <h3>Budget & ROI Analysis</h3>
+                            <div class="budget-analysis">
+                                <div class="budget-item">
+                                    <span class="budget-label">Initial Implementation Cost</span>
+                                    <span class="budget-value">₹12,50,000</span>
+                                </div>
+                                <div class="budget-item">
+                                    <span class="budget-label">Annual Operating Cost</span>
+                                    <span class="budget-value">₹2,80,000</span>
+                                </div>
+                                <div class="budget-item">
+                                    <span class="budget-label">Annual Citizen Time Savings</span>
+                                    <span class="budget-value">₹2,40,00,000</span>
+                                </div>
+                                <div class="budget-item highlight">
+                                    <span class="budget-label">ROI (Return on Investment)</span>
+                                    <span class="budget-value">1920%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Stakeholder Feedback -->
+                        <div class="admin-card">
+                            <h3>Stakeholder Satisfaction</h3>
+                            <div class="stakeholder-feedback">
+                                <div class="feedback-item">
+                                    <div class="feedback-header">
+                                        <span class="feedback-stakeholder">Commuters</span>
+                                        <span class="feedback-rating">4.6/5 ⭐</span>
+                                    </div>
+                                    <p>"Finally know when the bus will actually arrive!"</p>
+                                </div>
+                                <div class="feedback-item">
+                                    <div class="feedback-header">
+                                        <span class="feedback-stakeholder">Bus Drivers</span>
+                                        <span class="feedback-rating">4.4/5 ⭐</span>
+                                    </div>
+                                    <p>"Easy to use GPS system, passengers are happier."</p>
+                                </div>
+                                <div class="feedback-item">
+                                    <div class="feedback-header">
+                                        <span class="feedback-stakeholder">Transport Authority</span>
+                                        <span class="feedback-rating">4.8/5 ⭐</span>
+                                    </div>
+                                    <p>"Complete visibility of fleet operations at low cost."</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="bus-modal" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-bus-title">Bus Information</h3>
+                <button id="close-modal-btn" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="modal-bus-details" class="bus-details">
+                    <!-- Bus details will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="lite-mode-modal" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Low Bandwidth Mode</h3>
+                <button id="close-lite-modal-btn" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="lite-mode-content">
+                    <h4>Optimized for 3G Networks in Tier-2 Cities</h4>
+                    <div class="lite-benefits">
+                        <div class="lite-benefit">
+                            <span class="lite-icon">📱</span>
+                            <div>
+                                <strong>78% Data Reduction</strong>
+                                <p>Compressed updates, cached routes</p>
+                            </div>
+                        </div>
+                        <div class="lite-benefit">
+                            <span class="lite-icon">⚡</span>
+                            <div>
+                                <strong>Works Offline</strong>
+                                <p>24-hour route cache available</p>
+                            </div>
+                        </div>
+                        <div class="lite-benefit">
+                            <span class="lite-icon">🌐</span>
+                            <div>
+                                <strong>256kbps Ready</strong>
+                                <p>Optimized for slow connections</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="lite-controls">
+                        <button id="enable-lite-btn" class="btn btn--primary">Enable Lite Mode</button>
+                        <button id="disable-lite-btn" class="btn btn--outline">Standard Mode</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Loading Tier-2 City Bus Tracker...</p>
+            <div class="loading-stats">
+                <span>Optimized for 3G networks</span>
+                <span>520KB total size</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
